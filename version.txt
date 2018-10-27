@@ -1,0 +1,5 @@
+这是基本springcloud-provider的activiti项目
+
+更新日志：
+
+v1.0 SpringBoot集成Activiti Modeler(v5.22.0)

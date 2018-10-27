@@ -1,0 +1,40 @@
+#mybatis配置
+mybatis:
+  config-locations: classpath:mybatis-config.xml
+  mapper-locations: classpath:com/talelife/myproject/mapper/*.xml
+  type-aliases-package: com.talelife.myproject.model
+  configuration:
+    cache-enabled: false
+#pagehelper分页插件配置
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params-count: countSql
+#redis session
+redis:
+  #hostName: 120.25.208.44
+  host: 172.31.118.23
+  password: 123456
+  port: 6379
+  timeout: 10000
+
+spring:
+  #spring数据源配置
+  datasource:
+    url: jdbc:mysql://172.31.118.23:3306/myproject?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    #指定数据连接沲
+    type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    host: 172.31.118.23
+    password: 123456
+    port: 6379
+  security:
+    user:
+      name: admin
+      password: 123456
+  activiti:
+    check-process-definitions: false #启动时不检查流程文件
