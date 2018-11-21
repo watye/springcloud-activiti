@@ -36,7 +36,8 @@
     <springProfile name="dev">
         <logger name="com.talelife.myproject" level="DEBUG"/>
         <logger name="org.springframework" level="INFO"/>
-        <logger name="org.mybatis" level="INFO"/>
+        <logger name="org.mybatis" level="DEBUG"/>
+        <logger name="java.sql" level="DEBUG"/>
         <!-- 根配置，下级默认继承这个配置 -->
         <root level="INFO">
 	        <appender-ref ref="CONSOLE" />

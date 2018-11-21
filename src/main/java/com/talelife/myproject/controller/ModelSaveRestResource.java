@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -58,16 +60,18 @@ public class ModelSaveRestResource implements ModelDataJsonConstants {
   public void saveModel(@PathVariable String modelId, String json_xml,String svg_xml,String name,String description) {
     try {
       
-    	
+      JSONObject jsonObject = JSON.parseObject(json_xml);	
+      JSONObject properties = jsonObject.getJSONObject("properties");
+      String modelName = properties.getString("name");
       Model model = repositoryService.getModel(modelId);
       
       ObjectNode modelJson = (ObjectNode) objectMapper.readTree(model.getMetaInfo());
       
-      modelJson.put(MODEL_NAME, name);
+      modelJson.put(MODEL_NAME, modelName);
       modelJson.put(MODEL_DESCRIPTION, description);
       model.setMetaInfo(modelJson.toString());
-      model.setName(name);
-      
+      model.setName(modelName);
+      model.setKey(properties.getString("process_id"));
       repositoryService.saveModel(model);
       
       repositoryService.addModelEditorSource(model.getId(), json_xml.getBytes("utf-8"));

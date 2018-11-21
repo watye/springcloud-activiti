@@ -1,4 +1,4 @@
-package com.talelife.myproject.controller;
+package com.talelife.myproject.controller.repository;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,8 +18,10 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.persistence.entity.ModelEntity;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
+import org.activiti.rest.service.api.repository.ModelRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.talelife.myproject.controller.BaseController;
 import com.talelife.util.Result;
 
 import io.swagger.annotations.Api;
@@ -42,70 +45,14 @@ import io.swagger.annotations.Api;
  */
 @Api(tags="流程模型接口")
 @RestController
-@RequestMapping("/model")
-public class ModelController extends BaseController {
+@RequestMapping("/repository/deployment-support")
+public class DeploymentSupportController extends BaseController {
 	
 	@Autowired
 	private RepositoryService repositoryService;
     @Autowired
     private ObjectMapper objectMapper;
 
-    /**
-     * 创建模型
-     * @param request
-     * @return
-     * @throws IOException 
-     */
-    @PostMapping(value = "/add_model")
-    public Result<Object> addModel(@RequestBody ModelEntity modelEntity) throws IOException{
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode editorNode = objectMapper.createObjectNode();
-        editorNode.put("id", "canvas");
-        editorNode.put("resourceId", "canvas");
-        ObjectNode stencilSetNode = objectMapper.createObjectNode();
-        stencilSetNode.put("namespace", "http://b3mn.org/stencilset/bpmn2.0#");
-        editorNode.put("stencilset", stencilSetNode);
-        Model modelData = repositoryService.newModel();
-
-        ObjectNode modelObjectNode = objectMapper.createObjectNode();
-        modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, modelEntity.getName());
-        modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
-        //modelObjectNode.put(ModelDataJsonConstants.MODEL_DESCRIPTION, description);
-        modelData.setMetaInfo(modelObjectNode.toString());
-        modelData.setName(modelEntity.getName());
-        //modelData.setKey(modelEntity.getKey());
-
-        repositoryService.saveModel(modelData);
-        repositoryService.addModelEditorSource(modelData.getId(), editorNode.toString().getBytes("utf-8"));
-        return Result.success();
-    }
-
-    @PostMapping(value = "/edit_model")
-    public Result<Object> editModel(@RequestBody ModelEntity modelEntity) throws IOException{
-
-    	 Model model = repositoryService.getModel(modelEntity.getId());
-         
-         ObjectNode modelJson = (ObjectNode) objectMapper.readTree(modelEntity.getMetaInfo());
-         
-         modelJson.put(ModelDataJsonConstants.MODEL_NAME, modelEntity.getName());
-         modelJson.put(ModelDataJsonConstants.MODEL_DESCRIPTION, modelJson.get(ModelDataJsonConstants.MODEL_DESCRIPTION).toString().replace("\"", ""));
-         model.setMetaInfo(modelJson.toString());
-         model.setName(modelEntity.getName());
-         
-         repositoryService.saveModel(model);
-        return Result.success();
-    }
-    
-    /**
-     * 模型列表
-     * @return
-     */
-    @GetMapping(value = "/model_list")
-    public List<Model> modelList(){
-        List<Model> flowList = repositoryService.createModelQuery().list();
-        return flowList;
-    }
 
     
     @GetMapping(value = "/deploy_list")
@@ -120,10 +67,16 @@ public class ModelController extends BaseController {
         repositoryService.deleteModel(id);
     }
 
-    @GetMapping(value = "/deploy_model")
-    public Result<Object> deployModel(String id) throws Exception{
+    /**
+     * 发布流程定义
+     * @param modelId
+     * @return
+     * @throws Exception
+     */
+    @PostMapping(value = "/{modelId}")
+    public Result<Object> deployProcessDefinition(@PathVariable String modelId) throws Exception{
 
-        Model modelData = repositoryService.getModel(id);
+        Model modelData = repositoryService.getModel(modelId);
         byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
         if (null == bytes){
             return Result.fail("500", "模型数据为空，请先设计流程并成功保存，再进行发布。");

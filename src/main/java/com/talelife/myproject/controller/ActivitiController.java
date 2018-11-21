@@ -7,6 +7,8 @@ import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.impl.cfg.IdGenerator;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.repository.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -63,4 +65,10 @@ public class ActivitiController extends BaseController {
         }
     }
 
+    @RequestMapping("/test")
+    public void test() {
+    	 IdGenerator idGenerator = Context.getProcessEngineConfiguration().getIdGenerator();
+    	 String nextId = idGenerator.getNextId();
+    	 System.out.println(nextId);
+    }
 }

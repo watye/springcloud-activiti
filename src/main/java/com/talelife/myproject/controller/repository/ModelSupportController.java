@@ -1,4 +1,4 @@
-package com.talelife.myproject.controller;
+package com.talelife.myproject.controller.repository;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,6 +18,7 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.persistence.entity.ModelEntity;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
+import org.activiti.rest.service.api.repository.ModelRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.talelife.myproject.controller.BaseController;
 import com.talelife.util.Result;
 
 import io.swagger.annotations.Api;
@@ -42,8 +44,8 @@ import io.swagger.annotations.Api;
  */
 @Api(tags="流程模型接口")
 @RestController
-@RequestMapping("/model")
-public class ModelController extends BaseController {
+@RequestMapping("/repository/model-support")
+public class ModelSupportController extends BaseController {
 	
 	@Autowired
 	private RepositoryService repositoryService;
@@ -56,8 +58,8 @@ public class ModelController extends BaseController {
      * @return
      * @throws IOException 
      */
-    @PostMapping(value = "/add_model")
-    public Result<Object> addModel(@RequestBody ModelEntity modelEntity) throws IOException{
+    @PostMapping(value = "/model")
+    public Result<Object> addModel(@RequestBody ModelRequest modelRequest) throws IOException{
 
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode editorNode = objectMapper.createObjectNode();
@@ -69,42 +71,16 @@ public class ModelController extends BaseController {
         Model modelData = repositoryService.newModel();
 
         ObjectNode modelObjectNode = objectMapper.createObjectNode();
-        modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, modelEntity.getName());
+        modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, modelRequest.getName());
         modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
         //modelObjectNode.put(ModelDataJsonConstants.MODEL_DESCRIPTION, description);
         modelData.setMetaInfo(modelObjectNode.toString());
-        modelData.setName(modelEntity.getName());
+        modelData.setName(modelRequest.getName());
         //modelData.setKey(modelEntity.getKey());
 
         repositoryService.saveModel(modelData);
         repositoryService.addModelEditorSource(modelData.getId(), editorNode.toString().getBytes("utf-8"));
         return Result.success();
-    }
-
-    @PostMapping(value = "/edit_model")
-    public Result<Object> editModel(@RequestBody ModelEntity modelEntity) throws IOException{
-
-    	 Model model = repositoryService.getModel(modelEntity.getId());
-         
-         ObjectNode modelJson = (ObjectNode) objectMapper.readTree(modelEntity.getMetaInfo());
-         
-         modelJson.put(ModelDataJsonConstants.MODEL_NAME, modelEntity.getName());
-         modelJson.put(ModelDataJsonConstants.MODEL_DESCRIPTION, modelJson.get(ModelDataJsonConstants.MODEL_DESCRIPTION).toString().replace("\"", ""));
-         model.setMetaInfo(modelJson.toString());
-         model.setName(modelEntity.getName());
-         
-         repositoryService.saveModel(model);
-        return Result.success();
-    }
-    
-    /**
-     * 模型列表
-     * @return
-     */
-    @GetMapping(value = "/model_list")
-    public List<Model> modelList(){
-        List<Model> flowList = repositoryService.createModelQuery().list();
-        return flowList;
     }
 
     
