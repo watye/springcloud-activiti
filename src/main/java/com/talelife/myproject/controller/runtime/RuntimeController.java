@@ -1,4 +1,4 @@
-package com.talelife.myproject.controller;
+package com.talelife.myproject.controller.runtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.talelife.myproject.controller.BaseController;
 import com.talelife.myproject.dto.ProcessInstanceDto;
 import com.talelife.util.Result;
 
@@ -29,8 +30,8 @@ import io.swagger.annotations.Api;
  */
 @Api(tags="流程实例接口")
 @RestController
-@RequestMapping("/instance")
-public class InstanceController extends BaseController {
+@RequestMapping("/runtime/runtime-support")
+public class RuntimeController extends BaseController {
 	
 	@Autowired
 	private RepositoryService repositoryService;
@@ -40,10 +41,10 @@ public class InstanceController extends BaseController {
     /**
      * 发起流程实例
      */
-    @GetMapping(value = "/start_process_instance_by_key")
+    @PostMapping(value = "/start_process_instance_by_key")
     public Result<Object> startProcessInstanceByKey(String processDefinitionKey,String businessKey,String name){
     	Map<String, Object> variables = new HashMap<>();
-    	variables.put("startUser11", 1);
+    	variables.put("startUser", 1);
     	ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinitionKey, businessKey, variables);
     	runtimeService.setProcessInstanceName(processInstance.getProcessInstanceId(), name);
         return Result.success();

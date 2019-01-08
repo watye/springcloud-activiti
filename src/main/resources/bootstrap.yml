@@ -2,9 +2,9 @@ server:
   port: 9000
 spring:
   application:
-    name: springcloud-activiti
+    name: roc-component-permission-web
   profiles:
-    active: dev
+    active: local
 
 ---
 spring:
@@ -32,3 +32,16 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
+---
+spring:
+  profiles: local
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 20
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://172.31.118.23:35000/eureka

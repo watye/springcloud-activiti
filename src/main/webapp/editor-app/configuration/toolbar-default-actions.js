@@ -23,7 +23,6 @@ KISBPM.TOOLBAR = {
     ACTIONS: {
 
         saveModel: function (services) {
-
             var modal = services.$modal({
                 backdrop: true,
                 keyboard: true,
